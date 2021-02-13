@@ -1,9 +1,19 @@
-const searchSongs = async () => {
+
+document.getElementById("search-field")
+.addEventListener("keypress", function(event) {
+     if (event.key === 'Enter') {
+        document.getElementById("search-button").click();
+     }
+});
+
+const searchSongs =() => {
     const searchText = document.getElementById('search-field').value;
     const url = ` https://api.lyrics.ovh/suggest/${searchText}`
-    const res = await fetch(url);
-    const data = await res.json();
-    displaySongs(data.data);
+    toggleSpinner(true);
+    fetch(url)
+    .then(res => res.json())
+    .then(data => displaySongs(data.data))
+    .catch(error => displayError('Something went wrong!! Please try again later'));
 }
 const displaySongs = songs => {
     const songContainer = document.getElementById('song-container');
@@ -23,17 +33,33 @@ const displaySongs = songs => {
         <button onclick="getLyric('${song.artist.name}','${song.title}')" class="btn btn-success">Get Lyrics</button>
     </div>`
         songContainer.appendChild(songDiv);
+        toggleSpinner(false);
     })
 }
 
-const getLyric = async (artist, title) => {
+const getLyric =(artist, title) => {
     const url = `https://api.lyrics.ovh/v1/${artist}/${title}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    displayLyrics(data.lyrics);
+    fetch(url)
+    .then(res => res.json())
+    .then(data => displayLyrics(data.lyrics))
 }
 
 const displayLyrics = lyrics => {
     const lyricsDiv = document.getElementById('song-lyrics');
     lyricsDiv.innerText = lyrics;
+}
+
+const displayError = error => {
+    const errorTag = document.getElementById('error-message')
+    errorTag.innerText = error;
+}
+
+const toggleSpinner = (show) => {
+    const spinner = document.getElementById('loading-spinner');
+    if(show){
+        spinner.classList.remove('d-none');
+    }
+    else{
+        spinner.classList.add('d-none');
+    }
 }
